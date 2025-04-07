@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Mood Detector</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            max-width: 800px;
+            width: 90%;
+            margin: 20px;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #2d3748;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .input-section {
+            margin: 30px 0;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            font-size: 1em;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #5a67d8;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .analyze-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .analyze-btn:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .result-section {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 15px;
+            display: none;
+        }
+
+        .result-section.visible {
+            display: block;
+        }
+
+        .emotion-box {
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 1.5em;
+        }
+
+        .confidence {
+            font-size: 1.2em;
+            margin-top: 10px;
+            color: #4a5568;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            textarea {
+                height: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Mood Detector</h1>
+        <div class="input-section">
+            <textarea id="text-input" placeholder="Type or paste your text here..."></textarea>
+            <button onclick="analyzeText()" class="analyze-btn">Analyze Mood</button>
+        </div>
+        <div id="result-section" class="result-section">
+            <div id="emotion-box" class="emotion-box"></div>
+            <div id="confidence" class="confidence"></div>
+        </div>
+    </div>
+
+    <script>
+        async function analyzeText() {
+            const text = document.getElementById('text-input').value;
+            if (!text.trim()) {
+                alert('Please enter some text!');
+                return;
+            }
+
+            const response = await fetch('/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `text=${encodeURIComponent(text)}`
+            });
+
+            const data = await response.json();
+            
+            document.getElementById('result-section').classList.add('visible');
+            document.getElementById('emotion-box').innerHTML = 
+                `<span style="color: ${data.color}; font-size: 2em;">${data.emoji}</span> ${data.emotion}`;
+            document.getElementById('confidence').textContent = 
+                `Confidence: ${data.confidence}%`;
+        }
+    </script>
+</body>
+</html>
